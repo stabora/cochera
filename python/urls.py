@@ -1,3 +1,5 @@
+# -*- coding: utf:8 -*-
+
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
@@ -9,5 +11,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 )
 
-admin.site.site_header = 'Sitio administrativo'
-admin.site.site_title = 'Sitio administrativo'
+admin.site.site_header = 'Cochera - Administración'
+admin.site.site_title = 'Cochera - Administración'

@@ -38,7 +38,7 @@ class TitularAdmin(admin.ModelAdmin):
 
 
 class PagoAdmin(admin.ModelAdmin):
-    list_display = ['get_lugar_numero', 'get_titular_edit_link', 'fecha_pago', 'periodo', 'importe']
+    list_display = ['get_lugar_numero', 'get_titular_edit_link', 'fecha_pago', 'get_periodo', 'importe']
     list_filter = ['titular', 'periodo']
     ordering = ['-fecha_pago']
     search_fields = ['titular__apellido', 'titular__nombres']
@@ -87,6 +87,11 @@ class LugarAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def get_actions(self, request):
+        actions = super(LugarAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
 
     def get_titular_edit_link(self, obj):
         if obj.titular:

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django.utils import formats
+from django.forms import ValidationError
+from django.template.defaultfilters import date as _date
 
 
 class Parametro(models.Model):
@@ -142,13 +143,33 @@ class Pago(models.Model):
     importe = models.DecimalField(max_digits=13, decimal_places=2)
 
     def __unicode__(self):
-        return u'{} - Período {} - $ {}'.format(
+        return u'{} - {} - ${}'.format(
             self.lugar,
-            formats.date_format(self.periodo, 'SHORT_DATE_FORMAT'),
+            _date(self.periodo, 'E \d\e Y'),
             self.importe
         )
+
+    def clean(self):
+        if self.lugar.titular == None:
+            raise ValidationError(u'El lugar se encuentra desocupado')
+
+        if self.periodo_pago():
+            raise ValidationError(u'Ya se ingresó un pago para el lugar y el período seleccionados')
+
+    def save(self, *args, **kwargs):
+        self.titular = Titular.objects.get(pk=self.lugar.titular.pk)
+        super(Pago, self).save(*args, **kwargs)
 
     def get_lugar_numero(self):
         return self.lugar.numero
 
     get_lugar_numero.short_description = 'Lugar'
+
+    def get_periodo(self):
+        return _date(self.periodo, 'E \d\e Y')
+
+    get_periodo.short_description = 'Período de pago'
+    get_periodo.admin_order_field = 'periodo'
+
+    def periodo_pago(self):
+        return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
