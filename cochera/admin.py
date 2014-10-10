@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.contrib.admin import SimpleListFilter
-from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, Parametro
+from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, Gasto, Parametro
 from cochera.forms import PagoForm
 
 
@@ -55,6 +55,13 @@ class PagoAdmin(admin.ModelAdmin):
     get_titular_edit_link.admin_order_field = 'titular__apellido'
     get_titular_edit_link.allow_tags = True
     get_titular_edit_link.short_description = 'Titular'
+
+
+class GastoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'fecha', 'descripcion', 'importe']
+    list_filter = ['descripcion', 'fecha']
+    ordering = ['-fecha']
+    search_fields = ['descripcion', 'comentario']
 
 
 class LugarOcupacionFilter(SimpleListFilter):
@@ -112,4 +119,5 @@ class LugarAdmin(admin.ModelAdmin):
 admin.site.register(Titular, TitularAdmin)
 admin.site.register(Lugar, LugarAdmin)
 admin.site.register(Pago, PagoAdmin)
+admin.site.register(Gasto, GastoAdmin)
 admin.site.register(Parametro, ParametroAdmin)

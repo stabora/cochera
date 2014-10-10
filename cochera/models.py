@@ -150,7 +150,7 @@ class Pago(models.Model):
         )
 
     def clean(self):
-        if self.lugar.titular == None:
+        if self.lugar.titular is None:
             raise ValidationError(u'El lugar se encuentra desocupado')
 
         if self.periodo_pago():
@@ -173,3 +173,17 @@ class Pago(models.Model):
 
     def periodo_pago(self):
         return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
+
+
+class Gasto(models.Model):
+    descripcion = models.CharField('Descripción', max_length=200)
+    fecha = models.DateField()
+    importe = models.PositiveIntegerField()
+    comentario = models.TextField(blank=True, null=True)
+
+    def __unicode__(self):
+        return '({}) {}: ${}'.format(
+            _date(self.fecha, 'd/m/Y'),
+            self.descripcion,
+            self.importe
+        )
