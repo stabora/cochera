@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.contrib.admin import SimpleListFilter
-from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, Gasto, Parametro
+from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, CategoriaGasto, Gasto, Parametro
 from cochera.forms import PagoForm
 
 
@@ -27,19 +27,45 @@ class VehiculoInline(admin.TabularInline):
     classes = ['collapse']
 
 
+class TitularAsignacionFilter(SimpleListFilter):
+    title = 'Estado'
+    parameter_name = 'estado'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', 'Asignados'),
+            ('2', 'No asignados'),
+        )
+
+    def queryset(self, request, queryset):
+        lugares = Lugar.objects.exclude(titular=None).values_list('titular')
+
+        if self.value() == '1':
+            return queryset.filter(pk__in=lugares)
+        elif self.value() == '2':
+            return queryset.exclude(pk__in=lugares)
+        else:
+            return queryset
+
+
 class TitularAdmin(admin.ModelAdmin):
     list_display = ['__unicode__', 'get_lugares', 'get_contactos', 'get_domicilio', 'get_vehiculos']
     fieldsets = [
         (None, {'fields': ['apellido', 'nombres']}),
         ('Domicilio postal', {'fields': ['calle', 'numero', 'codigo_postal', 'localidad'], 'classes': ['collapse']}),
     ]
+    list_filter = [TitularAsignacionFilter]
+    search_fields = ['apellido', 'nombres']
     inlines = [ContactoInline, VehiculoInline]
     ordering = ['apellido', 'nombres']
 
 
 class PagoAdmin(admin.ModelAdmin):
-    list_display = ['get_lugar_numero', 'get_titular_edit_link', 'fecha_pago', 'get_periodo', 'importe']
-    list_filter = ['titular', 'periodo']
+    list_display = [
+        'get_lugar_numero', 'get_titular_edit_link', 'fecha_pago',
+        'get_periodo', 'importe', 'parcial', 'comentario'
+    ]
+    list_filter = ['titular', 'periodo', 'parcial']
     ordering = ['-fecha_pago']
     search_fields = ['titular__apellido', 'titular__nombres']
     form = PagoForm
@@ -58,10 +84,10 @@ class PagoAdmin(admin.ModelAdmin):
 
 
 class GastoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fecha', 'descripcion', 'importe']
-    list_filter = ['descripcion', 'fecha']
+    list_display = ['id', 'fecha', 'categoria', 'importe', 'comentario']
+    list_filter = ['categoria', 'fecha']
     ordering = ['-fecha']
-    search_fields = ['descripcion', 'comentario']
+    search_fields = ['comentario']
 
 
 class LugarOcupacionFilter(SimpleListFilter):
@@ -119,5 +145,6 @@ class LugarAdmin(admin.ModelAdmin):
 admin.site.register(Titular, TitularAdmin)
 admin.site.register(Lugar, LugarAdmin)
 admin.site.register(Pago, PagoAdmin)
+admin.site.register(CategoriaGasto)
 admin.site.register(Gasto, GastoAdmin)
 admin.site.register(Parametro, ParametroAdmin)

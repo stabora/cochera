@@ -141,6 +141,8 @@ class Pago(models.Model):
     periodo = models.DateField('Período')
     fecha_pago = models.DateField('Fecha de pago')
     importe = models.DecimalField(max_digits=13, decimal_places=2)
+    parcial = models.BooleanField(default=False)
+    comentario = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return u'{} - {} - ${}'.format(
@@ -150,11 +152,12 @@ class Pago(models.Model):
         )
 
     def clean(self):
-        if self.lugar.titular is None:
-            raise ValidationError(u'El lugar se encuentra desocupado')
+        if hasattr(self, 'lugar'):
+            if self.lugar.titular is None:
+                raise ValidationError(u'El lugar se encuentra desocupado')
 
-        if self.periodo_pago():
-            raise ValidationError(u'Ya se ingresó un pago para el lugar y el período seleccionados')
+            if self.periodo_pago():
+                raise ValidationError(u'Ya se ingresó un pago para el lugar y el período seleccionados')
 
     def save(self, *args, **kwargs):
         self.titular = Titular.objects.get(pk=self.lugar.titular.pk)
@@ -175,8 +178,19 @@ class Pago(models.Model):
         return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
 
 
+class CategoriaGasto(models.Model):
+    descripcion = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.descripcion
+
+    class Meta:
+        verbose_name = 'Categoría de gasto'
+        verbose_name_plural = 'Categorías de gastos'
+
+
 class Gasto(models.Model):
-    descripcion = models.CharField('Descripción', max_length=200)
+    categoria = models.ForeignKey('CategoriaGasto')
     fecha = models.DateField()
     importe = models.PositiveIntegerField()
     comentario = models.TextField(blank=True, null=True)
