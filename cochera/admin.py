@@ -24,7 +24,6 @@ class VehiculoInline(admin.TabularInline):
     ]
     model = Vehiculo
     extra = 1
-    classes = ['collapse']
 
 
 class TitularAsignacionFilter(SimpleListFilter):
@@ -52,7 +51,7 @@ class TitularAdmin(admin.ModelAdmin):
     list_display = ['__unicode__', 'get_lugares', 'get_contactos', 'get_domicilio', 'get_vehiculos']
     fieldsets = [
         (None, {'fields': ['apellido', 'nombres']}),
-        ('Domicilio postal', {'fields': ['calle', 'numero', 'codigo_postal', 'localidad'], 'classes': ['collapse']}),
+        ('Domicilio postal', {'fields': ['calle', 'numero', 'codigo_postal', 'localidad']}),
     ]
     list_filter = [TitularAsignacionFilter]
     search_fields = ['apellido', 'nombres']

@@ -70,6 +70,7 @@ class Titular(models.Model):
 
     class Meta:
         verbose_name_plural = 'Titulares'
+        ordering = ['apellido', 'nombres']
 
 
 class TipoContacto(models.Model):
@@ -187,6 +188,7 @@ class CategoriaGasto(models.Model):
     class Meta:
         verbose_name = 'Categoría de gasto'
         verbose_name_plural = 'Categorías de gastos'
+        ordering = ['descripcion']
 
 
 class Gasto(models.Model):
@@ -198,6 +200,6 @@ class Gasto(models.Model):
     def __unicode__(self):
         return '({}) {}: ${}'.format(
             _date(self.fecha, 'd/m/Y'),
-            self.descripcion,
+            self.categoria,
             self.importe
         )
