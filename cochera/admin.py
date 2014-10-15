@@ -16,6 +16,7 @@ class ParametroAdmin(admin.ModelAdmin):
 class ContactoInline(admin.TabularInline):
     model = Contacto
     extra = 2
+    suit_classes = 'suit-tab suit-tab-general'
 
 
 class VehiculoInline(admin.TabularInline):
@@ -24,6 +25,7 @@ class VehiculoInline(admin.TabularInline):
     ]
     model = Vehiculo
     extra = 1
+    suit_classes = 'suit-tab suit-tab-avanzado'
 
 
 class TitularAsignacionFilter(SimpleListFilter):
@@ -49,9 +51,10 @@ class TitularAsignacionFilter(SimpleListFilter):
 
 class TitularAdmin(admin.ModelAdmin):
     list_display = ['__unicode__', 'get_lugares', 'get_contactos', 'get_domicilio', 'get_vehiculos']
+    suit_form_tabs = (('general', 'General'), ('avanzado', 'Avanzado'))
     fieldsets = [
-        (None, {'fields': ['apellido', 'nombres']}),
-        ('Domicilio postal', {'fields': ['calle', 'numero', 'codigo_postal', 'localidad']}),
+        (None, {'fields': ['apellido', 'nombres'], 'classes': ('suit-tab', 'suit-tab-general')}),
+        ('Domicilio postal', {'fields': ['calle', 'numero', 'codigo_postal', 'localidad'], 'classes': ('suit-tab', 'suit-tab-avanzado')}),
     ]
     list_filter = [TitularAsignacionFilter]
     search_fields = ['apellido', 'nombres']

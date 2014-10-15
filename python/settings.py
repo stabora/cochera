@@ -89,10 +89,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+##############################
+# Custom configurations
+##############################
+
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static/')
+
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
-
 
 # Django Suit Theme
 
