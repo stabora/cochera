@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.forms import ValidationError
+from django.utils.html import format_html
 from django.template.defaultfilters import date as _date
 
 
@@ -31,22 +32,34 @@ class Titular(models.Model):
             self.nombres
         )
 
-    def get_contactos(self):
-        return '<br/>'.join([str(contacto) for contacto in Contacto.objects.filter(titular_id=self.pk)])
+    def get_link(self):
+        return format_html(u'<a href="/{}/{}/{}">{}</a>'.format(
+            self._meta.app_label,
+            self._meta.model_name,
+            self.pk,
+            self
+        ))
 
-    get_contactos.short_description = 'Contactos'
-    get_contactos.allow_tags = True
+    get_link.admin_order_field = 'titular__apellido'
+    get_link.allow_tags = True
+    get_link.short_description = 'Titular'
 
-    def get_lugares(self):
-        return ', '.join([u'<a href="/admin/{}/{}/{}">{}</a>'.format(
+    def get_link_lugares(self):
+        return ', '.join([u'<a href="/{}/{}/{}">{}</a>'.format(
             lugar._meta.app_label,
             lugar._meta.module_name,
             lugar.pk,
             lugar.numero,
         ) for lugar in Lugar.objects.filter(titular_id=self.pk)])
 
-    get_lugares.short_description = 'Lugares'
-    get_lugares.allow_tags = True
+    get_link_lugares.short_description = 'Lugares'
+    get_link_lugares.allow_tags = True
+
+    def get_contactos(self):
+        return '<br/>'.join([str(contacto) for contacto in Contacto.objects.filter(titular_id=self.pk)])
+
+    get_contactos.short_description = 'Contactos'
+    get_contactos.allow_tags = True
 
     def get_vehiculos(self):
         return '<br/>'.join([str(vehiculo) for vehiculo in Vehiculo.objects.filter(titular_id=self.pk)])
@@ -132,6 +145,12 @@ class Lugar(models.Model):
     ocupado.boolean = True
     ocupado.short_description = '¿Ocupado?'
 
+    def get_link_titular(self):
+        if self.titular:
+            return self.titular.get_link()
+        else:
+            return 'Desocupado'
+
     class Meta:
         verbose_name_plural = 'Lugares'
 
@@ -157,7 +176,7 @@ class Pago(models.Model):
             if self.lugar.titular is None:
                 raise ValidationError(u'El lugar se encuentra desocupado')
 
-            if self.periodo_pago():
+            if self.check_periodo_pago():
                 raise ValidationError(u'Ya se ingresó un pago para el lugar y el período seleccionados')
 
     def save(self, *args, **kwargs):
@@ -175,8 +194,11 @@ class Pago(models.Model):
     get_periodo.short_description = 'Período de pago'
     get_periodo.admin_order_field = 'periodo'
 
-    def periodo_pago(self):
+    def check_periodo_pago(self):
         return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
+
+    def get_link_titular(self):
+        return self.titular.get_link()
 
 
 class CategoriaGasto(models.Model):
