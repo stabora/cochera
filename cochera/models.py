@@ -32,7 +32,7 @@ class Titular(models.Model):
             self.nombres
         )
 
-    def get_link(self):
+    def get_edit_link(self):
         return format_html(u'<a href="/{}/{}/{}">{}</a>'.format(
             self._meta.app_label,
             self._meta.model_name,
@@ -40,11 +40,11 @@ class Titular(models.Model):
             self
         ))
 
-    get_link.admin_order_field = 'titular__apellido'
-    get_link.allow_tags = True
-    get_link.short_description = 'Titular'
+    get_edit_link.admin_order_field = 'titular__apellido'
+    get_edit_link.allow_tags = True
+    get_edit_link.short_description = 'Titular'
 
-    def get_link_lugares(self):
+    def get_edit_links_lugares(self):
         return ', '.join([u'<a href="/{}/{}/{}">{}</a>'.format(
             lugar._meta.app_label,
             lugar._meta.module_name,
@@ -52,8 +52,8 @@ class Titular(models.Model):
             lugar.numero,
         ) for lugar in Lugar.objects.filter(titular_id=self.pk)])
 
-    get_link_lugares.short_description = 'Lugares'
-    get_link_lugares.allow_tags = True
+    get_edit_links_lugares.short_description = 'Lugares'
+    get_edit_links_lugares.allow_tags = True
 
     def get_contactos(self):
         return '<br/>'.join([str(contacto) for contacto in Contacto.objects.filter(titular_id=self.pk)])
@@ -136,23 +136,45 @@ class Lugar(models.Model):
             titular
         )
 
-    def ocupado(self):
+    def get_ocupado(self):
         if self.titular:
             return True
         else:
             return False
 
-    ocupado.boolean = True
-    ocupado.short_description = '¿Ocupado?'
+    get_ocupado.boolean = True
+    get_ocupado.short_description = '¿Ocupado?'
 
-    def get_link_titular(self):
+    def get_ultimo_pago(self):
+        ultimo_pago = Pago.objects.filter(lugar_id=self.id).order_by('-periodo').first()
+
+        if ultimo_pago:
+            return '<a href="/{}/pago/?lugar__id__exact={}">{}</a> ({}) - ${} {}'.format(
+                self._meta.app_label,
+                self.pk,
+                _date(ultimo_pago.periodo, 'm/Y'),
+                ultimo_pago.titular,
+                ultimo_pago.importe,
+                '[P]' if ultimo_pago.parcial else ''
+            )
+        else:
+            return ''
+
+    get_ultimo_pago.allow_tags = True
+    get_ultimo_pago.short_description = 'Último pago'
+
+    def get_edit_link_titular(self):
         if self.titular:
-            return self.titular.get_link()
+            return self.titular.get_edit_link()
         else:
             return 'Desocupado'
 
+    get_edit_link_titular.admin_order_field = 'titular__apellido'
+    get_edit_link_titular.short_description = 'Titular'
+
     class Meta:
         verbose_name_plural = 'Lugares'
+        ordering = ['numero']
 
 
 class Pago(models.Model):
@@ -165,8 +187,9 @@ class Pago(models.Model):
     comentario = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return u'{} - {} - ${}'.format(
-            self.lugar,
+        return u'#{} {} - {} - ${}'.format(
+            self.lugar.numero,
+            self.titular,
             _date(self.periodo, 'E \d\e Y'),
             self.importe
         )
@@ -183,6 +206,9 @@ class Pago(models.Model):
         self.titular = Titular.objects.get(pk=self.lugar.titular.pk)
         super(Pago, self).save(*args, **kwargs)
 
+    def check_periodo_pago(self):
+        return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
+
     def get_lugar_numero(self):
         return self.lugar.numero
 
@@ -194,11 +220,11 @@ class Pago(models.Model):
     get_periodo.short_description = 'Período de pago'
     get_periodo.admin_order_field = 'periodo'
 
-    def check_periodo_pago(self):
-        return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
+    def get_edit_link_titular(self):
+        return self.titular.get_edit_link()
 
-    def get_link_titular(self):
-        return self.titular.get_link()
+    get_edit_link_titular.admin_order_field = 'titular__apellido'
+    get_edit_link_titular.short_description = 'Titular'
 
 
 class CategoriaGasto(models.Model):
@@ -216,7 +242,7 @@ class CategoriaGasto(models.Model):
 class Gasto(models.Model):
     categoria = models.ForeignKey('CategoriaGasto')
     fecha = models.DateField()
-    importe = models.PositiveIntegerField()
+    importe = models.DecimalField(max_digits=13, decimal_places=2)
     comentario = models.TextField(blank=True, null=True)
 
     def __unicode__(self):

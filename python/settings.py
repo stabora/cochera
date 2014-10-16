@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'cochera',
 )
 
@@ -110,4 +111,16 @@ TEMPLATE_CONTEXT_PROCESSORS = TCP + (
 
 SUIT_CONFIG = {
     'ADMIN_NAME': 'Cochera - Administración',
+    'SEARCH_URL': '/cochera/lugar/',
+    'MENU_ICONS': {
+       'sites': 'icon-leaf',
+       'auth': 'icon-lock',
+    },
+    'MENU': (
+        'sites',
+        {'app': 'cochera', 'icon':'icon-map-marker', 'models': ('lugar', 'titular', 'pago', 'gasto')},
+        '-',
+        {'label': 'Configuracion', 'app': 'cochera', 'icon':'icon-wrench', 'models': ('parametro', 'categoriagasto')},
+        {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group')},
+    ),
 }

@@ -1,0 +1,21 @@
+{% extends 'admin/change_list.html' %}
+
+{% block result_list %}
+
+<table class="table-overview table-bordered table-condensed" style="width: 100%;">
+	<tbody>
+		<tr>
+			<td><strong>TOTALES</strong></td>
+			<th><strong>Ingresos:</strong></th>
+			<td>{{ total_pagos }}</td>
+			<th><strong>Gastos:</strong> </th>
+			<td>{{ total_gastos }}</td>
+			<th><strong>Saldo:</strong> </th>
+			<td>{{ total }}</td>
+		</tr>
+	</tbody>
+</table>
+
+{{ block.super }}
+
+{% endblock %}

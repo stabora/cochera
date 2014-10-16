@@ -2,6 +2,8 @@
 
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.contrib.humanize.templatetags import humanize
+from django.db.models import Sum
 from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, CategoriaGasto, Gasto, Parametro
 from cochera.forms import PagoForm
 
@@ -49,7 +51,7 @@ class TitularAsignacionFilter(SimpleListFilter):
 
 
 class TitularAdmin(admin.ModelAdmin):
-    list_display = ['__unicode__', 'get_link_lugares', 'get_contactos', 'get_domicilio', 'get_vehiculos']
+    list_display = ['__unicode__', 'get_edit_links_lugares', 'get_contactos', 'get_domicilio', 'get_vehiculos']
     suit_form_tabs = (('general', 'General'), ('avanzado', 'Avanzado'))
     fieldsets = [
         (None, {
@@ -69,20 +71,54 @@ class TitularAdmin(admin.ModelAdmin):
 
 class PagoAdmin(admin.ModelAdmin):
     list_display = [
-        'get_lugar_numero', 'get_link_titular', 'fecha_pago',
-        'get_periodo', 'importe', 'parcial', 'comentario'
+        'get_lugar_numero', 'get_edit_link_titular', 'fecha_pago',
+        'get_periodo', 'get_importe', 'parcial', 'comentario'
     ]
-    list_filter = ['titular', 'periodo', 'parcial']
+    list_filter = ['lugar', 'titular', 'periodo', 'parcial']
     ordering = ['-fecha_pago']
-    search_fields = ['titular__apellido', 'titular__nombres']
+    search_fields = ['lugar__numero', 'titular__apellido', 'titular__nombres']
     form = PagoForm
+
+    def changelist_view(self, request, extra_content=None):
+        total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
+        total_gastos = Gasto.objects.aggregate(Sum('importe'))['importe__sum']
+        extra_context = {
+            'total_pagos': humanize.intcomma(total_pagos),
+            'total_gastos': humanize.intcomma(total_gastos),
+            'total' : humanize.intcomma(total_pagos - total_gastos),
+        }
+
+        return super(PagoAdmin, self).changelist_view(request, extra_context=extra_context)
+
+    def get_importe(self, obj):
+        return humanize.intcomma(obj.importe)
+
+    get_importe.short_description = 'Importe'
+    get_importe.admin_order_field = 'importe'
 
 
 class GastoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fecha', 'categoria', 'importe', 'comentario']
+    list_display = ['id', 'fecha', 'categoria', 'get_importe', 'comentario']
     list_filter = ['categoria', 'fecha']
     ordering = ['-fecha']
     search_fields = ['comentario']
+
+    def changelist_view(self, request, extra_content=None):
+        total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
+        total_gastos = Gasto.objects.aggregate(Sum('importe'))['importe__sum']
+        extra_context = {
+            'total_pagos': humanize.intcomma(total_pagos),
+            'total_gastos': humanize.intcomma(total_gastos),
+            'total' : humanize.intcomma(total_pagos - total_gastos),
+        }
+
+        return super(GastoAdmin, self).changelist_view(request, extra_context=extra_context)
+
+    def get_importe(self, obj):
+        return humanize.intcomma(obj.importe)
+
+    get_importe.short_description = 'Importe'
+    get_importe.admin_order_field = 'importe'
 
 
 class LugarOcupacionFilter(SimpleListFilter):
@@ -105,10 +141,10 @@ class LugarOcupacionFilter(SimpleListFilter):
 
 
 class LugarAdmin(admin.ModelAdmin):
-    list_display = ['numero', 'get_link_titular', 'fecha_ocupado', 'ocupado']
+    list_display = ['numero', 'get_edit_link_titular', 'fecha_ocupado', 'get_ultimo_pago', 'get_ocupado']
     list_filter = [LugarOcupacionFilter, 'titular', 'fecha_ocupado']
     ordering = ['numero']
-    search_fields = ['titular__apellido', 'titular__nombres']
+    search_fields = ['numero', 'titular__apellido', 'titular__nombres']
 
     def has_add_permission(self, request):
         return False
