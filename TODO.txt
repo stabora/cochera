@@ -1,11 +1,3 @@
 - Mejorar filtro 'Periodo' en Pago con rangos personalizados
 - Mejorar filtro 'Fecha ocupacion' en Lugar con rangos personalizados
-
-
-2014-10-16
-
-- Refactorizacion general de metodos (nombres y valores devueltos en __unicode__)
-- Configuracion: mejoras en el orden del menu principal
-- Agregada columna 'Ultimo pago' en Lugar con enlace al detalle de pagos efectuados
-- Cambio a tipo de dato Decimal(13, 2) para Gasto.importe
-- Agregados totales en 'Pago' y 'Gasto'
+- Alerta de atraso en Lugar
