@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.humanize.templatetags import humanize
 from django.db.models import Sum
+from datetime import date
+from dateutil.relativedelta import relativedelta
 from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, CategoriaGasto, Gasto, Parametro
 from cochera.forms import PagoForm
 
@@ -69,12 +71,51 @@ class TitularAdmin(admin.ModelAdmin):
     ordering = ['apellido', 'nombres']
 
 
+class PagoPeriodoFilter(SimpleListFilter):
+    title = 'Período'
+    parameter_name = 'periodo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', 'Este mes'),
+            ('2', 'El mes pasado'),
+            ('3', 'Los últimos 3 meses'),
+            ('4', 'Los últimos 6 meses'),
+            ('5', 'Este año'),
+            ('6', 'El año pasado'),
+        )
+
+    def queryset(self, request, queryset):
+        fecha_actual = date.today()
+
+        if self.value() == '1':
+            fecha_desde = fecha_actual
+            return queryset.filter(periodo=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '2':
+            fecha_desde = fecha_actual + relativedelta(months=-1)
+            return queryset.filter(periodo=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '3':
+            fecha_desde = fecha_actual + relativedelta(months=-2)
+            return queryset.filter(periodo__gte=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '4':
+            fecha_desde = fecha_actual + relativedelta(months=-5)
+            return queryset.filter(periodo__gte=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '5':
+            fecha_desde = date(fecha_actual.year, 1, 1)
+            return queryset.filter(periodo__year=fecha_desde.year)
+        elif self.value() == '6':
+            fecha_desde = fecha_actual + relativedelta(years=-1)
+            return queryset.filter(periodo__year=fecha_desde.year)
+        else:
+            return queryset
+
+
 class PagoAdmin(admin.ModelAdmin):
     list_display = [
         'get_lugar_numero', 'get_edit_link_titular', 'fecha_pago',
         'get_periodo', 'get_importe', 'parcial', 'comentario'
     ]
-    list_filter = ['lugar', 'titular', 'periodo', 'parcial']
+    list_filter = ['lugar', 'titular', PagoPeriodoFilter, 'parcial']
     ordering = ['-fecha_pago']
     search_fields = ['lugar__numero', 'titular__apellido', 'titular__nombres']
     form = PagoForm
@@ -85,7 +126,7 @@ class PagoAdmin(admin.ModelAdmin):
         extra_context = {
             'total_pagos': humanize.intcomma(total_pagos),
             'total_gastos': humanize.intcomma(total_gastos),
-            'total' : humanize.intcomma(total_pagos - total_gastos),
+            'total': humanize.intcomma(total_pagos - total_gastos),
         }
 
         return super(PagoAdmin, self).changelist_view(request, extra_context=extra_context)
@@ -109,7 +150,7 @@ class GastoAdmin(admin.ModelAdmin):
         extra_context = {
             'total_pagos': humanize.intcomma(total_pagos),
             'total_gastos': humanize.intcomma(total_gastos),
-            'total' : humanize.intcomma(total_pagos - total_gastos),
+            'total': humanize.intcomma(total_pagos - total_gastos),
         }
 
         return super(GastoAdmin, self).changelist_view(request, extra_context=extra_context)
@@ -140,9 +181,51 @@ class LugarOcupacionFilter(SimpleListFilter):
             return queryset
 
 
+class LugarFechaOcupacionFilter(SimpleListFilter):
+    title = 'Fecha de ocupación'
+    parameter_name = 'fecha_ocupacion'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', 'Este mes'),
+            ('2', 'El mes pasado'),
+            ('3', 'Los últimos 3 meses'),
+            ('4', 'Los últimos 6 meses'),
+            ('5', 'Este año'),
+            ('6', 'El año pasado'),
+        )
+
+    def queryset(self, request, queryset):
+        fecha_actual = date.today()
+
+        if self.value() == '1':
+            fecha_desde = fecha_actual
+            return queryset.filter(fecha_ocupacion=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '2':
+            fecha_desde = fecha_actual + relativedelta(months=-1)
+            return queryset.filter(fecha_ocupacion=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '3':
+            fecha_desde = fecha_actual + relativedelta(months=-2)
+            return queryset.filter(fecha_ocupacion__gte=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '4':
+            fecha_desde = fecha_actual + relativedelta(months=-5)
+            return queryset.filter(fecha_ocupacion__gte=date(fecha_desde.year, fecha_desde.month, 1))
+        elif self.value() == '5':
+            fecha_desde = date(fecha_actual.year, 1, 1)
+            return queryset.filter(periodo__year=fecha_desde.year)
+        elif self.value() == '6':
+            fecha_desde = fecha_actual + relativedelta(years=-1)
+            return queryset.filter(periodo__year=fecha_desde.year)
+        else:
+            return queryset
+
+
 class LugarAdmin(admin.ModelAdmin):
-    list_display = ['numero', 'get_edit_link_titular', 'fecha_ocupado', 'get_ultimo_pago', 'get_ocupado']
-    list_filter = [LugarOcupacionFilter, 'titular', 'fecha_ocupado']
+    list_display = [
+        'numero', 'get_edit_link_titular', 'fecha_ocupacion',
+        'get_ultimo_pago', 'get_ocupado', 'get_meses_atraso'
+    ]
+    list_filter = [LugarOcupacionFilter, 'titular', LugarFechaOcupacionFilter]
     ordering = ['numero']
     search_fields = ['numero', 'titular__apellido', 'titular__nombres']
 
@@ -156,6 +239,19 @@ class LugarAdmin(admin.ModelAdmin):
         actions = super(LugarAdmin, self).get_actions(request)
         del actions['delete_selected']
         return actions
+
+    def get_meses_atraso(self, obj):
+        meses_atraso = obj.get_meses_atraso()
+
+        if meses_atraso > int(Parametro.objects.get(nombre='MESES_ALERTA_ATRASO_COCHERA').valor):
+            return '<span style="color: Red">{}</style>'.format(
+                meses_atraso
+            )
+        else:
+            return meses_atraso
+
+    get_meses_atraso.short_description = 'Atraso (meses)'
+    get_meses_atraso.allow_tags = True
 
 
 admin.site.register(Titular, TitularAdmin)

@@ -1,3 +1,2 @@
-- Mejorar filtro 'Periodo' en Pago con rangos personalizados
-- Mejorar filtro 'Fecha ocupacion' en Lugar con rangos personalizados
-- Alerta de atraso en Lugar
+- Cambiar formato de fechas y períodos globalmente
+- Agregar mes numérico en widget de selección de período para el modelo Pago

@@ -4,6 +4,8 @@ from django.db import models
 from django.forms import ValidationError
 from django.utils.html import format_html
 from django.template.defaultfilters import date as _date
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 class Parametro(models.Model):
@@ -123,7 +125,7 @@ class Vehiculo(models.Model):
 class Lugar(models.Model):
     numero = models.PositiveIntegerField('número', default=0)
     titular = models.ForeignKey('Titular', null=True, blank=True, verbose_name='Titular')
-    fecha_ocupado = models.DateField('Fecha de ocupación', null=True, blank=True)
+    fecha_ocupacion = models.DateField('Fecha de ocupación', null=True, blank=True)
 
     def __unicode__(self):
         if self.titular:
@@ -143,7 +145,7 @@ class Lugar(models.Model):
             return False
 
     get_ocupado.boolean = True
-    get_ocupado.short_description = '¿Ocupado?'
+    get_ocupado.short_description = 'Ocupado'
 
     def get_ultimo_pago(self):
         ultimo_pago = Pago.objects.filter(lugar_id=self.id).order_by('-periodo').first()
@@ -162,6 +164,16 @@ class Lugar(models.Model):
 
     get_ultimo_pago.allow_tags = True
     get_ultimo_pago.short_description = 'Último pago'
+
+    def get_meses_atraso(self):
+        ultimo_pago = Pago.objects.filter(lugar_id=self.id).order_by('-periodo').first()
+
+        if self.titular and ultimo_pago:
+            return relativedelta(date.today(), ultimo_pago.periodo).months
+        else:
+            return ''
+
+    get_meses_atraso.short_description = 'Atraso (meses)'
 
     def get_edit_link_titular(self):
         if self.titular:
