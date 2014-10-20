@@ -53,16 +53,27 @@ class MonthYearWidget(Widget):
         else:
             id_ = 'id_%s' % name
 
-        month_choices = MONTHS.items()
+        # month_choices = MONTHS.items()
+        month_choices = []
+
+        for month in MONTHS:
+            month_choices.append(
+                (month, '{} - {}'.format(month, MONTHS[month][0:]))
+            )
 
         if not (self.required and value):
             month_choices.append(self.none_value)
 
         month_choices.sort()
+
         local_attrs = self.build_attrs(id=self.month_field % id_)
+        local_attrs['style'] = 'width: 130px;'
+
         s = Select(choices=month_choices)
         select_html = s.render(self.month_field % name, month_val, local_attrs)
         output.append(select_html)
+
+        output.append('&nbsp;')
 
         year_choices = [(i, i) for i in self.years]
 
@@ -70,6 +81,7 @@ class MonthYearWidget(Widget):
             year_choices.insert(0, self.none_value)
 
         local_attrs['id'] = self.year_field % id_
+        local_attrs['style'] = 'width: 90px;'
         s = Select(choices=year_choices)
         select_html = s.render(self.year_field % name, year_val, local_attrs)
         output.append(select_html)

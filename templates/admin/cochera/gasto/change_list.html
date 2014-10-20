@@ -3,15 +3,17 @@
 {% block result_list %}
 
 <table class="table-overview table-bordered table-condensed" style="width: 100%;">
+	<caption><strong>Totales</strong></caption>
 	<tbody>
 		<tr>
-			<td><strong>TOTALES</strong></td>
 			<th><strong>Ingresos:</strong></th>
 			<td>{{ total_pagos }}</td>
 			<th><strong>Gastos:</strong> </th>
 			<td>{{ total_gastos }}</td>
+			<th><strong>Retiros:</strong> </th>
+			<td>{{ total_retiros }}</td>
 			<th><strong>Saldo:</strong> </th>
-			<td>{{ total }}</td>
+			<td><strong>{{ total }}</strong></td>
 		</tr>
 	</tbody>
 </table>

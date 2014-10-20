@@ -1,2 +1,11 @@
-- Cambiar formato de fechas y períodos globalmente
-- Agregar mes numérico en widget de selección de período para el modelo Pago
+- Refactorizar métodos 'get_': definir si quedan en los modelos o en las clases de administración
+- Probar fila final con totales en tablas de 'Pago' y 'Gasto' (view)
+
+
+2014-10-18
+
+- Agregado el número de mes en la descripción para el widget de selección de período en el modelo 'Pago'
+- Se precarga la fecha del día al agregar un nuevo 'Pago'
+- Modificado globalmente el formato de fechas y períodos (d/m/Y, /m/Y)
+- Corregida verificación de ingreso de 'Pago' duplicado sólo en nuevos elementos agregados
+- Mejoras en orden y enlaces de las columnas en el administrador de 'Pago' y 'Gasto'

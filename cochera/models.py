@@ -3,7 +3,6 @@
 from django.db import models
 from django.forms import ValidationError
 from django.utils.html import format_html
-from django.template.defaultfilters import date as _date
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -154,7 +153,7 @@ class Lugar(models.Model):
             return '<a href="/{}/pago/?lugar__id__exact={}">{}</a> ({}) - ${} {}'.format(
                 self._meta.app_label,
                 self.pk,
-                _date(ultimo_pago.periodo, 'm/Y'),
+                ultimo_pago.periodo.strftime('%m/%Y'),
                 ultimo_pago.titular,
                 ultimo_pago.importe,
                 '[P]' if ultimo_pago.parcial else ''
@@ -174,6 +173,18 @@ class Lugar(models.Model):
             return ''
 
     get_meses_atraso.short_description = 'Atraso (meses)'
+
+    def get_edit_link(self):
+        return format_html(u'<a href="/{}/{}/{}">{}</a>'.format(
+            self._meta.app_label,
+            self._meta.model_name,
+            self.pk,
+            self.numero
+        ))
+
+    get_edit_link.short_description = 'Lugar'
+    get_edit_link.admin_order_field = 'numero'
+    get_edit_link.allow_tags = True
 
     def get_edit_link_titular(self):
         if self.titular:
@@ -202,20 +213,22 @@ class Pago(models.Model):
         return u'#{} {} - {} - ${}'.format(
             self.lugar.numero,
             self.titular,
-            _date(self.periodo, 'E \d\e Y'),
+            self.periodo.strftime('%m/%Y'),
             self.importe
         )
 
     def clean(self):
         if hasattr(self, 'lugar'):
-            if self.lugar.titular is None:
+            if self.lugar.titular is None and not hasattr(self, 'titular'):
                 raise ValidationError(u'El lugar se encuentra desocupado')
 
-            if self.check_periodo_pago():
+            if self.pk is None and self.check_periodo_pago():
                 raise ValidationError(u'Ya se ingresó un pago para el lugar y el período seleccionados')
 
     def save(self, *args, **kwargs):
-        self.titular = Titular.objects.get(pk=self.lugar.titular.pk)
+        if not hasattr(self, 'titular'):
+            self.titular = Titular.objects.get(pk=self.lugar.titular.pk)
+
         super(Pago, self).save(*args, **kwargs)
 
     def check_periodo_pago(self):
@@ -226,17 +239,17 @@ class Pago(models.Model):
 
     get_lugar_numero.short_description = 'Lugar'
 
-    def get_periodo(self):
-        return _date(self.periodo, 'E \d\e Y')
+    def get_edit_link_lugar(self):
+        return self.lugar.get_edit_link()
 
-    get_periodo.short_description = 'Período de pago'
-    get_periodo.admin_order_field = 'periodo'
+    get_edit_link_lugar.short_description = 'Lugar'
+    get_edit_link_lugar.admin_order_field = 'lugar'
 
     def get_edit_link_titular(self):
         return self.titular.get_edit_link()
 
-    get_edit_link_titular.admin_order_field = 'titular__apellido'
     get_edit_link_titular.short_description = 'Titular'
+    get_edit_link_titular.admin_order_field = 'titular__apellido'
 
 
 class CategoriaGasto(models.Model):
@@ -259,7 +272,7 @@ class Gasto(models.Model):
 
     def __unicode__(self):
         return '({}) {}: ${}'.format(
-            _date(self.fecha, 'd/m/Y'),
+            self.fecha.strftime('%d/%m/%Y'),
             self.categoria,
             self.importe
         )

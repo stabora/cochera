@@ -7,7 +7,7 @@ from django.db.models import Sum
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from cochera.models import Titular, Contacto, Vehiculo, Lugar, Pago, CategoriaGasto, Gasto, Parametro
-from cochera.forms import PagoForm
+from cochera.forms import PagoForm, GastoForm
 
 
 class ParametroAdmin(admin.ModelAdmin):
@@ -112,8 +112,8 @@ class PagoPeriodoFilter(SimpleListFilter):
 
 class PagoAdmin(admin.ModelAdmin):
     list_display = [
-        'get_lugar_numero', 'get_edit_link_titular', 'fecha_pago',
-        'get_periodo', 'get_importe', 'parcial', 'comentario'
+        'get_periodo', 'get_edit_link_lugar', 'get_edit_link_titular', 'get_fecha_pago',
+        'get_importe', 'parcial', 'comentario'
     ]
     list_filter = ['lugar', 'titular', PagoPeriodoFilter, 'parcial']
     ordering = ['-fecha_pago']
@@ -122,11 +122,14 @@ class PagoAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_content=None):
         total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
-        total_gastos = Gasto.objects.aggregate(Sum('importe'))['importe__sum']
+        total_gastos = Gasto.objects.exclude(categoria=3).aggregate(Sum('importe'))['importe__sum']
+        total_retiros = Gasto.objects.filter(categoria=3).aggregate(Sum('importe'))['importe__sum']
+
         extra_context = {
             'total_pagos': humanize.intcomma(total_pagos),
             'total_gastos': humanize.intcomma(total_gastos),
-            'total': humanize.intcomma(total_pagos - total_gastos),
+            'total_retiros': humanize.intcomma(total_retiros),
+            'total': humanize.intcomma(total_pagos - total_gastos - total_retiros),
         }
 
         return super(PagoAdmin, self).changelist_view(request, extra_context=extra_context)
@@ -137,20 +140,36 @@ class PagoAdmin(admin.ModelAdmin):
     get_importe.short_description = 'Importe'
     get_importe.admin_order_field = 'importe'
 
+    def get_fecha_pago(self, obj):
+        return obj.fecha_pago.strftime('%d/%m/%Y')
+
+    get_fecha_pago.short_description = 'Fecha de pago'
+    get_fecha_pago.admin_order_field = 'fecha_pago'
+
+    def get_periodo(self, obj):
+        return obj.periodo.strftime('%m/%Y')
+
+    get_periodo.short_description = 'Período de pago'
+    get_periodo.admin_order_field = 'periodo'
+
 
 class GastoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fecha', 'categoria', 'get_importe', 'comentario']
+    list_display = ['categoria', 'get_fecha', 'get_importe', 'comentario']
     list_filter = ['categoria', 'fecha']
     ordering = ['-fecha']
     search_fields = ['comentario']
+    form = GastoForm
 
     def changelist_view(self, request, extra_content=None):
         total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
-        total_gastos = Gasto.objects.aggregate(Sum('importe'))['importe__sum']
+        total_gastos = Gasto.objects.exclude(categoria=3).aggregate(Sum('importe'))['importe__sum']
+        total_retiros = Gasto.objects.filter(categoria=3).aggregate(Sum('importe'))['importe__sum']
+
         extra_context = {
             'total_pagos': humanize.intcomma(total_pagos),
             'total_gastos': humanize.intcomma(total_gastos),
-            'total': humanize.intcomma(total_pagos - total_gastos),
+            'total_retiros': humanize.intcomma(total_retiros),
+            'total': humanize.intcomma(total_pagos - total_gastos - total_retiros),
         }
 
         return super(GastoAdmin, self).changelist_view(request, extra_context=extra_context)
@@ -160,6 +179,12 @@ class GastoAdmin(admin.ModelAdmin):
 
     get_importe.short_description = 'Importe'
     get_importe.admin_order_field = 'importe'
+
+    def get_fecha(self, obj):
+        return obj.fecha.strftime('%d/%m/%Y')
+
+    get_fecha.short_description = 'Fecha'
+    get_fecha.admin_order_field = 'fecha'
 
 
 class LugarOcupacionFilter(SimpleListFilter):
