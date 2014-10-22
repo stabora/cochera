@@ -157,7 +157,7 @@ class GastoAdmin(admin.ModelAdmin):
     list_display = ['categoria', 'get_fecha', 'get_importe', 'comentario']
     list_filter = ['categoria', 'fecha']
     ordering = ['-fecha']
-    search_fields = ['comentario']
+    search_fields = ['categoria__descripcion', 'comentario']
     form = GastoForm
 
     def changelist_view(self, request, extra_content=None):

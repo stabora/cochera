@@ -98,7 +98,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static/')
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
+    os.path.join(BASE_DIR, 'cochera/templates'),
 )
 
 # Django Suit Theme
