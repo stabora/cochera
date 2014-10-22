@@ -120,7 +120,14 @@ class PagoAdmin(admin.ModelAdmin):
     search_fields = ['lugar__numero', 'titular__apellido', 'titular__nombres']
     form = PagoForm
 
-    def changelist_view(self, request, extra_content=None):
+    def changelist_view(self, request, extra_context=None):
+        response = super(PagoAdmin, self).changelist_view(request, extra_context)
+
+        try:
+            filtered_qs = response.context_data['cl'].query_set
+        except KeyError:
+            pass
+
         total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
         total_gastos = Gasto.objects.exclude(categoria=3).aggregate(Sum('importe'))['importe__sum']
         total_retiros = Gasto.objects.filter(categoria=3).aggregate(Sum('importe'))['importe__sum']
@@ -130,6 +137,7 @@ class PagoAdmin(admin.ModelAdmin):
             'total_gastos': humanize.intcomma(total_gastos),
             'total_retiros': humanize.intcomma(total_retiros),
             'total': humanize.intcomma(total_pagos - total_gastos - total_retiros),
+            'total_filtrado': humanize.intcomma(filtered_qs.aggregate(Sum('importe'))['importe__sum']) if response.context_data.get('preserved_filters') else 0,
         }
 
         return super(PagoAdmin, self).changelist_view(request, extra_context=extra_context)
@@ -160,7 +168,14 @@ class GastoAdmin(admin.ModelAdmin):
     search_fields = ['categoria__descripcion', 'comentario']
     form = GastoForm
 
-    def changelist_view(self, request, extra_content=None):
+    def changelist_view(self, request, extra_context=None):
+        response = super(GastoAdmin, self).changelist_view(request, extra_context)
+
+        try:
+            filtered_qs = response.context_data['cl'].query_set
+        except KeyError:
+            pass
+
         total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
         total_gastos = Gasto.objects.exclude(categoria=3).aggregate(Sum('importe'))['importe__sum']
         total_retiros = Gasto.objects.filter(categoria=3).aggregate(Sum('importe'))['importe__sum']
@@ -170,6 +185,7 @@ class GastoAdmin(admin.ModelAdmin):
             'total_gastos': humanize.intcomma(total_gastos),
             'total_retiros': humanize.intcomma(total_retiros),
             'total': humanize.intcomma(total_pagos - total_gastos - total_retiros),
+            'total_filtrado': humanize.intcomma(filtered_qs.aggregate(Sum('importe'))['importe__sum']) if response.context_data.get('preserved_filters') else 0,
         }
 
         return super(GastoAdmin, self).changelist_view(request, extra_context=extra_context)

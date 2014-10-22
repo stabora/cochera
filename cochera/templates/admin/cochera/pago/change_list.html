@@ -6,6 +6,10 @@
 	<caption><strong>Totales</strong></caption>
 	<tbody>
 		<tr>
+			{% if total_filtrado %}
+			<th><strong>Total filtrado:</strong> </th>
+			<td>{{ total_filtrado }}</td>
+			{% endif %}
 			<th><strong>Ingresos:</strong></th>
 			<td>{{ total_pagos }}</td>
 			<th><strong>Gastos:</strong> </th>
