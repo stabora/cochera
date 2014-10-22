@@ -1,2 +1,1 @@
 - Refactorizar métodos 'get_': definir si quedan en los modelos o en las clases de administración
-- Probar fila final con totales en tablas de 'Pago' y 'Gasto' (view)
