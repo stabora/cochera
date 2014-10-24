@@ -88,12 +88,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/cochera/static/'
 
 
 ##############################
 # Custom configurations
 ##############################
+
+BASE_URL = '/cochera'
 
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static/')
 
@@ -111,7 +113,7 @@ TEMPLATE_CONTEXT_PROCESSORS = TCP + (
 
 SUIT_CONFIG = {
     'ADMIN_NAME': 'Cochera - Administración',
-    'SEARCH_URL': '/cochera/lugar/',
+    'SEARCH_URL': BASE_URL + '/cochera/lugar/',
     'MENU_ICONS': {
        'sites': 'icon-leaf',
        'auth': 'icon-lock',
@@ -120,8 +122,8 @@ SUIT_CONFIG = {
         'sites',
         {'app': 'cochera', 'icon':'icon-map-marker', 'models': ('lugar', 'titular', 'pago', 'gasto')},
         '-',
-        {'label': u'Añadir pago', 'icon': 'icon-plus-sign', 'url': '/cochera/pago/add'},
-        {'label': u'Añadir gasto', 'icon': 'icon-plus-sign', 'url': '/cochera/gasto/add'},
+        {'label': u'Añadir pago', 'icon': 'icon-plus-sign', 'permissions': 'cochera.add_pago', 'url': BASE_URL + '/cochera/pago/add'},
+        {'label': u'Añadir gasto', 'icon': 'icon-plus-sign', 'permissions': 'cochera.add_gasto', 'url': BASE_URL + '/cochera/gasto/add'},
         '-',
         {'label': 'Configuracion', 'app': 'cochera', 'icon':'icon-wrench', 'models': ('parametro', 'categoriagasto')},
         {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group')},

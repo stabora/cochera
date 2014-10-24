@@ -3,6 +3,7 @@
 from django.db import models
 from django.forms import ValidationError
 from django.utils.html import format_html
+from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -34,7 +35,8 @@ class Titular(models.Model):
         )
 
     def get_edit_link(self):
-        return format_html(u'<a href="/{}/{}/{}">{}</a>'.format(
+        return format_html(u'<a href="{}/{}/{}/{}">{}</a>'.format(
+            settings.BASE_URL,
             self._meta.app_label,
             self._meta.model_name,
             self.pk,
@@ -46,7 +48,8 @@ class Titular(models.Model):
     get_edit_link.short_description = 'Titular'
 
     def get_edit_links_lugares(self):
-        return ', '.join([u'<a href="/{}/{}/{}">{}</a>'.format(
+        return ', '.join([u'<a href="{}/{}/{}/{}">{}</a>'.format(
+            settings.BASE_URL,
             lugar._meta.app_label,
             lugar._meta.module_name,
             lugar.pk,
@@ -150,7 +153,8 @@ class Lugar(models.Model):
         ultimo_pago = Pago.objects.filter(lugar_id=self.id).order_by('-periodo').first()
 
         if ultimo_pago:
-            return '<a href="/{}/pago/?lugar__id__exact={}">{}</a> ({}) - ${} {}'.format(
+            return '<a href="{}/{}/pago/?lugar__id__exact={}">{}</a> ({}) - ${} {}'.format(
+                settings.BASE_URL,
                 self._meta.app_label,
                 self.pk,
                 ultimo_pago.periodo.strftime('%m/%Y'),
@@ -175,7 +179,8 @@ class Lugar(models.Model):
     get_meses_atraso.short_description = 'Atraso (meses)'
 
     def get_edit_link(self):
-        return format_html(u'<a href="/{}/{}/{}">{}</a>'.format(
+        return format_html(u'<a href="{}/{}/{}/{}">{}</a>'.format(
+            settings.BASE_URL,
             self._meta.app_label,
             self._meta.model_name,
             self.pk,
