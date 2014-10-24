@@ -116,7 +116,7 @@ class PagoAdmin(admin.ModelAdmin):
         'get_importe', 'parcial', 'comentario'
     ]
     list_filter = ['lugar', 'titular', PagoPeriodoFilter, 'parcial']
-    ordering = ['-fecha_pago']
+    ordering = ['-fecha_pago', '-periodo']
     search_fields = ['lugar__numero', 'titular__apellido', 'titular__nombres']
     form = PagoForm
 

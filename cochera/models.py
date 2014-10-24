@@ -232,7 +232,7 @@ class Pago(models.Model):
         super(Pago, self).save(*args, **kwargs)
 
     def check_periodo_pago(self):
-        return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo).exists()
+        return Pago.objects.filter(lugar=self.lugar.pk, periodo=self.periodo, parcial=False).exists()
 
     def get_lugar_numero(self):
         return self.lugar.numero
