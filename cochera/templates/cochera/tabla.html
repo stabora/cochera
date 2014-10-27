@@ -1,0 +1,21 @@
+{% extends "cochera/base.html" %}
+
+{% block content %}
+<table class="table table-stripped table-condensed">
+	<tr>
+		<th></th>
+		{% for periodo in periodos %}
+		<th>{{ periodo }}</th>
+		{% endfor %}
+	</tr>
+
+	{% for lugar in lugares %}
+	<tr>
+		<th>{{ lugar.numero }}</th>
+		{% for periodo in periodos %}
+		<td>{{ pagos.1.2|yesno }}</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}

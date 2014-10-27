@@ -3,12 +3,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'python.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
+urlpatterns = patterns(
+    '',
     url(r'^', include(admin.site.urls)),
+    url(r'^', include('cochera.urls')),
 )
 
 admin.site.site_header = 'Cochera - Administración'
