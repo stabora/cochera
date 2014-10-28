@@ -1,19 +1,27 @@
 {% extends "cochera/base.html" %}
 
 {% block content %}
-<table class="table table-stripped table-condensed">
+
+<table class="table table-striped table-condensed grilla-pagos">
 	<tr>
-		<th></th>
-		{% for periodo in periodos %}
-		<th>{{ periodo }}</th>
+		<th>Lugar</th>
+		{% for periodo in pagos|first %}
+		<th class="text-center">{{ periodo }}/{{ anio }}</th>
 		{% endfor %}
 	</tr>
 
-	{% for lugar in lugares %}
+	{% for clave, valor in pagos.items %}
 	<tr>
-		<th>{{ lugar.numero }}</th>
-		{% for periodo in periodos %}
-		<td>{{ pagos.1.2|yesno }}</td>
+		<th>{{ clave }}</th>
+
+		{% for periodo, pago in valor.items %}
+		<td>
+			{% if pago.importe > 0 %}
+			<a href="{{ base_url }}/pago/{{ pago.id }}"><img src="{{ base_url }}/static/admin/img/icon-yes.gif" alt="si" title="{{ pago.importe }}"></a>
+			{% else %}
+			<img src="{{ base_url }}/static/admin/img/icon-no.gif" alt="no">
+			{% endif %}
+		</td>
 		{% endfor %}
 	</tr>
 	{% endfor %}

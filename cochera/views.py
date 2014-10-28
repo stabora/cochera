@@ -5,19 +5,20 @@ from datetime import date
 from .models import Lugar, Pago
 
 
-def tabla(request, anio=date.today().year):
-    lugares = Lugar.objects.values('numero')
-    periodos = ()
-    pagos = {
-        '1': {'1': True, '2': False, '3': True, '4': True, '5': True, '6': True, '7': True, '8': True, '9': True, '10': True, '11': True, '12': True}
-    }
+def tabla(request, anio):
+    if not anio:
+        anio = date.today().year
 
-    for periodo in range(1, 12):
-        periodos += ('{}/{}'.format(periodo, anio),)
+    lugares = Lugar.objects.values('numero', 'id')
+    pagos = {}
 
     for lugar in lugares:
-        for periodo in periodos:
-            pass
+        pagos_lugar = {}
+
+        for periodo in range(1, 13):
+            pagos_lugar.update({int(periodo): Pago.objects.filter(lugar_id=lugar['id'], periodo__year=anio, periodo__month=periodo).values('importe', 'id').first()})
+
+        pagos.update({int(lugar['numero']): pagos_lugar})
 
     template = loader.get_template('cochera/tabla.html')
 
@@ -25,8 +26,6 @@ def tabla(request, anio=date.today().year):
         'base_url': settings.BASE_URL,
         'title': 'Pagos {}'.format(anio),
         'anio': anio,
-        'periodos': periodos,
-        'lugares': lugares,
         'pagos': pagos,
     })
 
