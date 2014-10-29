@@ -1,23 +1,25 @@
 {% extends "cochera/base.html" %}
 
 {% block content %}
-
-<table class="table table-striped table-condensed grilla-pagos">
+<table class="table table-striped table-condensed">
 	<tr>
-		<th>Lugar</th>
-		{% for periodo in pagos|first %}
+		<th class="text-center">Lugar</th>
+
+		{% with pagos|first as encabezado %}
+		{% for periodo in encabezado.periodos.keys %}
 		<th class="text-center">{{ periodo }}/{{ anio }}</th>
 		{% endfor %}
+		{% endwith %}
 	</tr>
 
-	{% for clave, valor in pagos.items %}
+	{% for clave, detalle in pagos.items %}
 	<tr>
-		<th>{{ clave }}</th>
+		<th class="text-center"><a href="{{ base_url }}/lugar/{{ detalle.datos.lugar_id }}" title="{{ detalle.datos.titular }}" class="bs-tooltip">{{ clave }}</a></th>
 
-		{% for periodo, pago in valor.items %}
-		<td>
+		{% for periodo, pago in detalle.periodos.items %}
+		<td class="text-center">
 			{% if pago.importe > 0 %}
-			<a href="{{ base_url }}/pago/{{ pago.id }}"><img src="{{ base_url }}/static/admin/img/icon-yes.gif" alt="si" title="{{ pago.importe }}"></a>
+			<a href="{{ base_url }}/pago/{{ pago.id }}"><img src="{{ base_url }}/static/admin/img/icon-yes.gif" alt="si" title="Importe: ${{ pago.importe }}<br>Fecha: {{ pago.fecha_pago|date:"d/m/Y" }}" class="bs-tooltip"></a>
 			{% else %}
 			<img src="{{ base_url }}/static/admin/img/icon-no.gif" alt="no">
 			{% endif %}

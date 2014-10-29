@@ -96,7 +96,6 @@ STATIC_URL = '/cochera/static/'
 ##############################
 
 BASE_URL = '/cochera'
-
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static/')
 
 TEMPLATE_DIRS = (

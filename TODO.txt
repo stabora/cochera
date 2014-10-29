@@ -1,3 +1,4 @@
+- Revisar ruta de los enlaces generados y utilizados en templates
+- Refactorizar vista 'tabla' (renombrar a 'pago')
 - Refactorizar métodos 'get_': definir si quedan en los modelos o en las clases de administración
 - Renombrar proyecto (carpeta 'python')
-- Refactorizar vista 'tabla' (renombrar a 'pago')
