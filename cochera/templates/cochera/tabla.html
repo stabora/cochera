@@ -2,14 +2,31 @@
 
 {% block content %}
 
-<form class="form" name="grilla" method="GET" action="/tabla">
-	<div class="form-group col-sm-3">
-		<select name="anio" id="anio" class="form-control">
-			{% for anio_opcion in rango_anios %}
-			<option {% if anio_opcion == anio %} selected="true"{% endif %}>{{ anio_opcion }}</option>
-			{% endfor %}
-		</select>
-	</div>
+<form class="form-horizontal" name="grilla" method="GET" action="/tabla">
+	<table class="table table-bordered">
+		<tbody>
+			<tr class="vertical-center">
+				<th><strong>A&ntilde;o</strong></th>
+				<td>
+					<div class="form-group-sm">
+					<select name="anio" id="anio" class="form-control">
+						{% for anio_opcion in rango_anios %}
+						<option {% if anio_opcion == anio %} selected="true"{% endif %}>{{ anio_opcion }}</option>
+						{% endfor %}
+					</select>
+					</div>
+				</td>
+				<th><strong>Ingresos:</strong></th>
+				<td>{{ total_pagos }}</td>
+				<th><strong>Gastos:</strong> </th>
+				<td>{{ total_gastos }}</td>
+				<th><strong>Retiros:</strong> </th>
+				<td>{{ total_retiros }}</td>
+				<th><strong>Saldo:</strong> </th>
+				<td><strong>{{ total }}</strong></td>
+			</tr>
+		</tbody>
+	</table>
 </form>
 
 <table class="table table-striped table-condensed">

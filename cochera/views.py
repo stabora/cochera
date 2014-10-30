@@ -3,8 +3,10 @@
 from django.http import HttpResponse
 from django.template import Context, loader
 from django.conf import settings
+from django.db.models import Sum
+from django.contrib.humanize.templatetags import humanize
 from datetime import date
-from .models import Lugar, Pago, Contacto
+from .models import Lugar, Contacto, Pago, Gasto
 
 
 def tabla(request, anio):
@@ -26,11 +28,15 @@ def tabla(request, anio):
 
         titular_contactos = Contacto.objects.filter(titular_id=lugar['titular__id']).values_list('valor')
 
-        titular_datos = u'Titular: {} {}<br>Contactos: {}<br>Desde: {}'.format(
+        titular_datos = (
+            u'Titular: {} {}<br>'
+            'Desde: {}'
+            '<br>Contactos: {}'
+        ).format(
             lugar['titular__nombres'] if lugar['titular__nombres'] else 'Desocupado',
             lugar['titular__apellido'] if lugar['titular__apellido'] else '',
+            lugar['fecha_ocupacion'].strftime('%d/%m/%Y') if lugar['fecha_ocupacion'] else 'n/d',
             ', '.join([item[0] for item in titular_contactos]),
-            lugar['fecha_ocupacion'].strftime('%d/%m/%Y') if lugar['fecha_ocupacion'] else 'n/d'
         )
 
         pagos.update({
@@ -40,6 +46,10 @@ def tabla(request, anio):
             }
         })
 
+    total_pagos = Pago.objects.aggregate(Sum('importe'))['importe__sum']
+    total_gastos = Gasto.objects.exclude(categoria=3).aggregate(Sum('importe'))['importe__sum']
+    total_retiros = Gasto.objects.filter(categoria=3).aggregate(Sum('importe'))['importe__sum']
+
     template = loader.get_template('cochera/tabla.html')
 
     context = Context({
@@ -48,6 +58,11 @@ def tabla(request, anio):
         'anio': anio,
         'rango_anios': range(anio_actual - 5, anio_actual + 1),
         'pagos': pagos,
+        'total_pagos': humanize.intcomma(total_pagos),
+        'total_gastos': humanize.intcomma(total_gastos),
+        'total_retiros': humanize.intcomma(total_retiros),
+        'total': humanize.intcomma(total_pagos - total_gastos - total_retiros),
+
     })
 
     return HttpResponse(template.render(context))

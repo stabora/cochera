@@ -1,0 +1,6 @@
+.vertical-center,
+tr.vertical-center th,
+tr.vertical-center td
+{
+	vertical-align: middle !important;
+}
