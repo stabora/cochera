@@ -8,8 +8,12 @@ from .models import Lugar, Pago, Contacto
 
 
 def tabla(request, anio):
+    anio_actual = date.today().year
+
     if not anio:
-        anio = date.today().year
+        anio = request.GET.get('anio', anio_actual)
+
+    anio = int(anio)
 
     lugares = Lugar.objects.values('numero', 'id', 'titular__apellido', 'titular__id', 'titular__nombres', 'fecha_ocupacion')
     pagos = {}
@@ -42,6 +46,7 @@ def tabla(request, anio):
         'base_url': settings.BASE_URL,
         'title': 'Pagos {}'.format(anio),
         'anio': anio,
+        'rango_anios': range(anio_actual - 5, anio_actual + 1),
         'pagos': pagos,
     })
 
