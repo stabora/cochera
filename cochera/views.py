@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.http import HttpResponse
-from django.template import Context, loader
+from django.template import RequestContext, loader
 from django.conf import settings
 from django.db.models import Sum
 from django.contrib.humanize.templatetags import humanize
@@ -52,8 +52,7 @@ def tabla(request, anio):
 
     template = loader.get_template('cochera/tabla.html')
 
-    context = Context({
-        'base_url': settings.BASE_URL,
+    context = RequestContext(request, {
         'title': 'Pagos {}'.format(anio),
         'anio': anio,
         'rango_anios': range(anio_actual - 5, anio_actual + 1),
@@ -62,7 +61,15 @@ def tabla(request, anio):
         'total_gastos': humanize.intcomma(total_gastos),
         'total_retiros': humanize.intcomma(total_retiros),
         'total': humanize.intcomma(total_pagos - total_gastos - total_retiros),
+    })
 
+    return HttpResponse(template.render(context))
+
+
+def plano(request):
+    template = loader.get_template('cochera/plano.html')
+    context = RequestContext(request, {
+        'title': 'Plano',
     })
 
     return HttpResponse(template.render(context))

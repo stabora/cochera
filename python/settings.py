@@ -95,7 +95,7 @@ STATIC_URL = '/cochera/static/'
 # Custom configurations
 ##############################
 
-BASE_URL = '/cochera'
+BASE_URL = ''
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static/')
 
 TEMPLATE_DIRS = (
@@ -108,6 +108,8 @@ from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
     'django.core.context_processors.request',
+    'cochera.contexts.baseurl',
+    'cochera.contexts.appname',
 )
 
 SUIT_CONFIG = {
@@ -123,6 +125,9 @@ SUIT_CONFIG = {
         '-',
         {'label': u'Añadir pago', 'icon': 'icon-plus-sign', 'permissions': 'cochera.add_pago', 'url': BASE_URL + '/cochera/pago/add'},
         {'label': u'Añadir gasto', 'icon': 'icon-plus-sign', 'permissions': 'cochera.add_gasto', 'url': BASE_URL + '/cochera/gasto/add'},
+        '-',
+        {'label': u'Grilla anual', 'icon': 'icon-calendar', 'permissions': 'cochera.add_pago', 'url': BASE_URL + '/cochera/tabla'},
+        {'label': u'Plano', 'icon': 'icon-globe', 'permissions': 'cochera.add_pago', 'url': BASE_URL + '/cochera/plano'},
         '-',
         {'label': 'Configuracion', 'app': 'cochera', 'icon':'icon-wrench', 'models': ('parametro', 'categoriagasto')},
         {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group')},

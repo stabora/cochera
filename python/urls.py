@@ -6,7 +6,7 @@ from django.contrib import admin
 urlpatterns = patterns(
     '',
     url(r'^', include(admin.site.urls)),
-    url(r'^', include('cochera.urls')),
+    url(r'^cochera/', include('cochera.urls', app_name='cochera')),
 )
 
 admin.site.site_header = 'Cochera - Administración'
