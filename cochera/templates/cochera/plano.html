@@ -1,8 +1,43 @@
-{% extends "admin/base.html" %}
+{% extends "admin/base_site.html" %}
 {% load staticfiles %}
 
+{% block extrahead %}
+<link rel="stylesheet" type="text/css" href="{% static "css/styles.css" %}">
+<script src="{% static "js/functions.js" %}"></script>
+{% endblock %}
+
 {% block content %}
-<object type="image/svg+xml" data="{% static "svg/plano.svg" %}" class="plano">
-  Plano
-</object>
+<div class="col-md-10 plano-tabla">
+	<table class="table table-condensed table-striped">
+		<thead>
+			<tr>
+				<th>N&uacute;mero</th>
+				<th>Titular</th>
+				<th>Fecha de ocupaci&oacute;n</th>
+				<th>Contactos</th>
+				<th>&Uacute;ltimo pago</th>
+				<th>Atraso</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{% for lugar in lugares %}
+			<tr id="lugar{{ lugar.numero|stringformat:"02d" }}_row"{% if not lugar.titular %} class="warning desocupado"{% endif %}>
+				<td>{{ lugar.get_edit_link }}</td>
+				<td>{{ lugar.titular.get_edit_link|default:"<em>** Desocupado **</em>" }}</td>
+				<td>{{ lugar.fecha_ocupacion|default:"n/d" }}</td>
+				<td>{{ lugar.titular.get_contactos|safe }}</td>
+				<td>{{ lugar.get_ultimo_pago|safe }}</td>
+				<td {% if lugar.get_meses_atraso and lugar.get_meses_atraso > meses_alerta_atraso %} class="alerta-atraso"{% endif %}>{{ lugar.get_meses_atraso }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<div class="col-md-2 plano-grafico">
+	<object type="image/svg+xml" data="{% static "svg/plano.svg" %}" id="plano-svg">
+	  Plano
+	</object>
+</div>
 {% endblock %}

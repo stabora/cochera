@@ -2,11 +2,10 @@
 
 from django.http import HttpResponse
 from django.template import RequestContext, loader
-from django.conf import settings
 from django.db.models import Sum
 from django.contrib.humanize.templatetags import humanize
 from datetime import date
-from .models import Lugar, Contacto, Pago, Gasto
+from .models import Lugar, Contacto, Pago, Gasto, Parametro
 
 
 def tabla(request, anio):
@@ -67,9 +66,13 @@ def tabla(request, anio):
 
 
 def plano(request):
+    lugares = Lugar.objects.all()
+
     template = loader.get_template('cochera/plano.html')
     context = RequestContext(request, {
         'title': 'Plano',
+        'lugares': lugares,
+        'meses_alerta_atraso': int(Parametro.objects.get(nombre='MESES_ALERTA_ATRASO_COCHERA').valor),
     })
 
     return HttpResponse(template.render(context))

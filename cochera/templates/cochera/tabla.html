@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% extends "admin/base_site.html" %}
 {% load staticfiles %}
 
 {% block extrahead %}
@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<form class="form-horizontal" name="grilla" method="GET" action="/cochera/tabla">
+<form class="form-horizontal" name="grilla" method="GET" action="{{ baseurl }}/{{ appname }}/tabla">
 	<table class="table-overview table-bordered table-condensed" style="width: 100%;">
 		<tbody>
 			<tr class="vertical-center">
@@ -35,40 +35,44 @@
 </form>
 
 <table class="table table-striped table-condensed">
-	<tr>
-		<th class="text-center"><strong>Lugar</strong></th>
+	<thead>
+		<tr>
+			<th class="text-center">Lugar</th>
 
-		{% with pagos|first as encabezado %}
-		{% for periodo in encabezado.periodos.keys %}
-		<th class="text-center"><strong>{{ periodo }}/{{ anio }}</strong></th>
-		{% endfor %}
-		{% endwith %}
-	</tr>
+			{% with pagos|first as encabezado %}
+			{% for periodo in encabezado.periodos.keys %}
+			<th class="text-center">{{ periodo }}/{{ anio }}</th>
+			{% endfor %}
+			{% endwith %}
+		</tr>
+	</thead>
 
-	{% for clave, detalle in pagos.items %}
-	<tr>
-		<th class="text-center">
-			{% if perms.cochera.change_lugar %}
-			<a href="{{ baseurl }}/cochera/lugar/{{ detalle.datos.lugar_id }}" title="{{ detalle.datos.titular }}" class="bs-tooltip">{{ clave }}</a>
-			{% else %}
-			{{ clave }}
-			{% endif %}
-		</th>
-
-		{% for periodo, pago in detalle.periodos.items %}
-		<td class="text-center">
-			{% if pago.importe > 0 %}
-				{% if perms.cochera.change_pago %}
-				<a href="{{ baseurl }}/cochera/pago/{{ pago.id }}"><img src="{% static "admin/img/icon-yes.gif" %}" alt="si" title="Importe: ${{ pago.importe }}<br>Fecha: {{ pago.fecha_pago|date:"d/m/Y" }}" class="bs-tooltip"></a>
+	<tbody>
+		{% for clave, detalle in pagos.items %}
+		<tr>
+			<th class="text-center">
+				{% if perms.cochera.change_lugar %}
+				<a href="{{ baseurl }}/cochera/lugar/{{ detalle.datos.lugar_id }}" title="{{ detalle.datos.titular }}" class="bs-tooltip">{{ clave }}</a>
 				{% else %}
-				<img src="{% static "admin/img/icon-yes.gif" %}" alt="si" title="Importe: ${{ pago.importe }}<br>Fecha: {{ pago.fecha_pago|date:"d/m/Y" }}" class="bs-tooltip">
+				{{ clave }}
 				{% endif %}
-			{% else %}
-			<img src="{% static "admin/img/icon-no.gif" %}" alt="no">
-			{% endif %}
-		</td>
+			</th>
+
+			{% for periodo, pago in detalle.periodos.items %}
+			<td class="text-center">
+				{% if pago.importe > 0 %}
+					{% if perms.cochera.change_pago %}
+					<a href="{{ baseurl }}/cochera/pago/{{ pago.id }}"><img src="{% static "admin/img/icon-yes.gif" %}" alt="si" title="Importe: ${{ pago.importe }}<br>Fecha: {{ pago.fecha_pago|date:"d/m/Y" }}" class="bs-tooltip"></a>
+					{% else %}
+					<img src="{% static "admin/img/icon-yes.gif" %}" alt="si" title="Importe: ${{ pago.importe }}<br>Fecha: {{ pago.fecha_pago|date:"d/m/Y" }}" class="bs-tooltip">
+					{% endif %}
+				{% else %}
+				<img src="{% static "admin/img/icon-no.gif" %}" alt="no">
+				{% endif %}
+			</td>
+			{% endfor %}
+		</tr>
 		{% endfor %}
-	</tr>
-	{% endfor %}
+	</tbody>
 </table>
 {% endblock %}

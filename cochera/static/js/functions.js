@@ -1,7 +1,58 @@
-	$(document).ready(function() {
-		$('.bs-tooltip').tooltip({ html: true });
+$(document).ready(function() {
+	$('.bs-tooltip').tooltip({
+		'html': true
+	});
 
-		$('select[name=anio]').change(function() {
-			$('form[name=grilla]').submit();
+	$('select[name=anio]').change(function() {
+		$('form[name=grilla]').submit();
+	});
+})
+
+
+$(window).load(function() {
+	if($('#plano-svg').length) {
+		svg = $('#plano-svg').get(0).getSVGDocument();
+
+
+		$(svg).find('[id^=lugar]')
+		.attr('cursor', 'pointer')
+		.click(function()
+		{
+			select_lugar(get_lugar($(this).attr('id')));
 		});
-	})
+
+		$('tr[id^=lugar]').click(function() {
+			select_lugar(get_lugar($(this).attr('id')));
+		});
+
+		$('tr[id^=lugar][class*=desocupado]').each(function() {
+			$(svg).find('rect[id=' + get_lugar($(this).attr('id')) + ']').css('stroke-dasharray', '2');
+			$(svg).find('g[id=' + get_lugar($(this).attr('id')) + '_texto]').find('path').css('fill', '#CACACA').css('stroke', '#CACACA');
+			$(svg).find('g[id=' + get_lugar($(this).attr('id')) + '_texto]').find('text').css('fill', '#000000');
+		})
+	}
+});
+
+
+function get_lugar(lugar) {
+	if(lugar.indexOf('_') > -1) {
+		lugar = lugar.substr(0, lugar.indexOf('_'));
+	}
+
+	return lugar;
+}
+
+function select_lugar_tabla(lugar) {
+	$('tr[id^=lugar]').removeClass('success');
+	$('tr#' + lugar + '_row').toggleClass('success');
+}
+
+function select_lugar_plano(lugar) {
+	$(svg).find('rect[id^=lugar]').css('fill', '#ffffff');
+	$(svg).find('rect[id=' + lugar + ']').css('fill', '#dff0d8');
+}
+
+function select_lugar(lugar) {
+	select_lugar_tabla(lugar);
+	select_lugar_plano(lugar);
+}

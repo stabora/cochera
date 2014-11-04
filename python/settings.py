@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Django settings for mi  io project.
+Django settings for project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
@@ -95,11 +95,15 @@ STATIC_URL = '/cochera/static/'
 # Custom configurations
 ##############################
 
-BASE_URL = ''
+BASE_URL = '/cochera'
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static/')
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'cochera/templates'),
+)
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'cochera/static'),
 )
 
 # Django Suit Theme
@@ -107,9 +111,9 @@ TEMPLATE_DIRS = (
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
-    'django.core.context_processors.request',
     'cochera.contexts.baseurl',
     'cochera.contexts.appname',
+    'django.core.context_processors.request',
 )
 
 SUIT_CONFIG = {

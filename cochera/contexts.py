@@ -1,4 +1,3 @@
-from django.core.urlresolvers import resolve
 from django.conf import settings
 
 
@@ -7,4 +6,4 @@ def baseurl(request):
 
 
 def appname(request):
-    return {'appname': resolve(request.path).app_name}
+    return {'appname': request.resolver_match.app_name}
