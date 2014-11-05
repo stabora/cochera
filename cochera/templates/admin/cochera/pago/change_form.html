@@ -1,0 +1,11 @@
+{% extends 'admin/change_form.html' %}
+{% load staticfiles %}
+
+{% block extrahead %}
+<script src="{% static "js/functions.js" %}"></script>
+{% endblock %}
+
+{% block after_field_sets %}
+<input type="hidden" id="IMPORTE_ALQUILER_COCHERA" value="{{ IMPORTE_ALQUILER_COCHERA }}">
+<input type="hidden" id="IMPORTE_ALQUILER_OFICINA" value="{{ IMPORTE_ALQUILER_OFICINA }}">
+{% endblock %}

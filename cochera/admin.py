@@ -142,6 +142,14 @@ class PagoAdmin(admin.ModelAdmin):
 
         return super(PagoAdmin, self).changelist_view(request, extra_context=extra_context)
 
+    def add_view(self, request, extra_context=None):
+        extra_context = {
+            'IMPORTE_ALQUILER_COCHERA': int(Parametro.objects.get(nombre='IMPORTE_ALQUILER_COCHERA').valor),
+            'IMPORTE_ALQUILER_OFICINA': int(Parametro.objects.get(nombre='IMPORTE_ALQUILER_OFICINA').valor),
+        }
+
+        return super(PagoAdmin, self).add_view(request, extra_context=extra_context)
+
     def get_importe(self, obj):
         return humanize.intcomma(obj.importe)
 
