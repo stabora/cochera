@@ -26,6 +26,7 @@ class VehiculoInline(admin.TabularInline):
     fieldsets = [
         (None, {'fields': ['dominio', 'descripcion']}),
     ]
+
     model = Vehiculo
     extra = 1
     suit_classes = 'suit-tab suit-tab-avanzado'
@@ -55,6 +56,7 @@ class TitularAsignacionFilter(SimpleListFilter):
 class TitularAdmin(admin.ModelAdmin):
     list_display = ['__unicode__', 'get_edit_links_lugares', 'get_contactos', 'get_domicilio', 'get_vehiculos']
     suit_form_tabs = (('general', 'General'), ('avanzado', 'Avanzado'))
+
     fieldsets = [
         (None, {
             'fields': ['apellido', 'nombres'],
@@ -65,6 +67,7 @@ class TitularAdmin(admin.ModelAdmin):
             'classes': ('suit-tab', 'suit-tab-avanzado')
         }),
     ]
+
     list_filter = [TitularAsignacionFilter]
     search_fields = ['apellido', 'nombres']
     inlines = [ContactoInline, VehiculoInline]
@@ -115,6 +118,7 @@ class PagoAdmin(admin.ModelAdmin):
         'get_periodo', 'get_edit_link_lugar', 'get_edit_link_titular', 'get_fecha_pago',
         'get_importe', 'parcial', 'comentario'
     ]
+
     list_filter = ['lugar', 'titular', PagoPeriodoFilter, 'parcial']
     ordering = ['-fecha_pago', '-periodo']
     search_fields = ['lugar__numero', 'titular__apellido', 'titular__nombres']
@@ -274,6 +278,7 @@ class LugarAdmin(admin.ModelAdmin):
         'numero', 'get_edit_link_titular', 'fecha_ocupacion',
         'get_ultimo_pago', 'get_ocupado', 'get_meses_atraso'
     ]
+
     list_filter = [LugarOcupacionFilter, 'titular', LugarFechaOcupacionFilter]
     ordering = ['numero']
     search_fields = ['numero', 'titular__apellido', 'titular__nombres']

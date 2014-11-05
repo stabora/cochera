@@ -2,21 +2,15 @@
 
 from datetime import datetime
 from django.forms import ModelForm, widgets
-from cochera.models import Pago, Gasto, Parametro
+from cochera.models import Pago, Gasto
 from cochera.widgets import MonthYearWidget
 
 
 class PagoForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
-        try:
-            importe = Parametro.objects.get(nombre='IMPORTE_ALQUILER_COCHERA').valor
-        except:
-            importe = None
-
         super(PagoForm, self).__init__(*args, **kwargs)
 
-        self.fields['importe'].initial = importe
         self.fields['periodo'].initial = datetime.now()
         self.fields['fecha_pago'].initial = datetime.today()
 
