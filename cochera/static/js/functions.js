@@ -26,9 +26,15 @@ $(window).load(function() {
 		});
 
 		$('tr[id^=lugar][class*=desocupado]').each(function() {
-			$(svg).find('rect[id=' + get_lugar($(this).attr('id')) + ']').css('stroke-dasharray', '2');
-			$(svg).find('g[id=' + get_lugar($(this).attr('id')) + '_texto]').find('path').css('fill', '#CACACA').css('stroke', '#CACACA');
-			$(svg).find('g[id=' + get_lugar($(this).attr('id')) + '_texto]').find('text').css('fill', '#000000');
+			lugar = get_lugar($(this).attr('id'));
+			$(svg).find('rect[id=' + lugar + ']').css('stroke-dasharray', '2');
+			$(svg).find('g[id=' + lugar + '_texto]').find('path').css('fill', '#CACACA').css('stroke', '#CACACA');
+			$(svg).find('g[id=' + lugar + '_texto]').find('text').css('fill', '#000000');
+		})
+
+		$('tr[id^=lugar][class*=alerta-atraso]').each(function() {
+			lugar = get_lugar($(this).attr('id'));
+			$(svg).find('g[id=' + get_lugar($(this).attr('id')) + '_texto]').find('path').css('fill', '#ff0000').css('stroke', '#ff0000');
 		})
 	}
 });

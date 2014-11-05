@@ -7,7 +7,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-md-10 plano-tabla">
+<div class="plano-container">
+<div class="plano-tabla">
 	<table class="table table-condensed table-striped">
 		<thead>
 			<tr>
@@ -22,22 +23,23 @@
 
 		<tbody>
 			{% for lugar in lugares %}
-			<tr id="lugar{{ lugar.numero|stringformat:"02d" }}_row"{% if not lugar.titular %} class="warning desocupado"{% endif %}>
+			<tr id="lugar{{ lugar.numero|stringformat:"02d" }}_row" class="{% if not lugar.titular %}warning desocupado{% endif %} {% if lugar.get_meses_atraso and lugar.get_meses_atraso > meses_alerta_atraso %}alerta-atraso{% endif %}">
 				<td>{{ lugar.get_edit_link }}</td>
 				<td>{{ lugar.titular.get_edit_link|default:"<em>** Desocupado **</em>" }}</td>
 				<td>{{ lugar.fecha_ocupacion|default:"n/d" }}</td>
 				<td>{{ lugar.titular.get_contactos|safe }}</td>
 				<td>{{ lugar.get_ultimo_pago|safe }}</td>
-				<td {% if lugar.get_meses_atraso and lugar.get_meses_atraso > meses_alerta_atraso %} class="alerta-atraso"{% endif %}>{{ lugar.get_meses_atraso }}</td>
+				<td class="dias-atraso">{{ lugar.get_meses_atraso }}</td>
 			</tr>
 			{% endfor %}
 		</tbody>
 	</table>
 </div>
 
-<div class="col-md-2 plano-grafico">
+<div class="plano-grafico">
 	<object type="image/svg+xml" data="{% static "svg/plano.svg" %}" id="plano-svg">
 	  Plano
 	</object>
+</div>
 </div>
 {% endblock %}
