@@ -9,7 +9,7 @@ $(document).ready(function() {
 
 	if($('#pago_form').length) {
 		$('select#id_lugar').change(function() {
-			if($(this).find('option:selected').text().indexOf('#0') > -1) {
+			if($(this).find('option:selected').text().indexOf('0:') > -1) {
 				$('input#id_importe').val($('input#IMPORTE_ALQUILER_OFICINA').val());
 			} else {
 				$('input#id_importe').val($('input#IMPORTE_ALQUILER_COCHERA').val());

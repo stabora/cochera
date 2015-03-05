@@ -135,7 +135,7 @@ class Lugar(models.Model):
         else:
             titular = 'Desocupado'
 
-        return u'#{}: {}'.format(
+        return u'{}: {}'.format(
             self.numero,
             titular
         )
